@@ -6,8 +6,7 @@ import math
 import numpy as np
 import random
 
-# Remove problematic import
-# from mediapipe.framework.formats import landmark_pb2 
+ 
 
 def hex_to_bgr(hex_color):
     hex_color = hex_color.lstrip('#')
@@ -46,13 +45,9 @@ GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
 GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
 VisionRunningMode = mp.tasks.vision.RunningMode
 
-# mp_drawing = mp.solutions.drawing_utils # Not used anymore
-# mp_hands = mp.solutions.hands # Not used anymore
-# mp_drawing_styles = mp.solutions.drawing_styles # Not used anymore
+
 
 # Manual simple connections for visualization
-# 0 is wrist. 
-# Fingers: Thumb:0-1-2-3-4, Index:0-5-6-7-8, Middle:0-9-10-11-12, Ring:0-13-14-15-16, Pinky:0-17-18-19-20
 HAND_CONNECTIONS = [
     (0, 1), (1, 2), (2, 3), (3, 4), # Thumb
     (0, 5), (5, 6), (6, 7), (7, 8), # Index
@@ -116,9 +111,6 @@ def get_fingers_status(landmarks):
     indicating if the finger is extended.
     """
     fingers = []
-    
-    # Thumb: Check x-pos (assuming right hand for simplicity, or relative to IP/MCP)
-    # A generic robust check: Distance Tip-to-PinkyMCP > Distance IP-to-PinkyMCP
     thumb_tip = landmarks[4]
     thumb_ip = landmarks[3]
     pinky_mcp = landmarks[17]
@@ -144,8 +136,6 @@ def get_fingers_status(landmarks):
     return fingers
 
 def draw_hand_landmarks_cv2(image, hand_landmarks, connection_color, landmark_color, thickness):
-    # ... (same as before)
-    # Re-inserting function body to ensure smooth replacement if context is tight
     h, w, _ = image.shape
     for connection in HAND_CONNECTIONS:
         start_idx = connection[0]
@@ -177,13 +167,6 @@ if app_mode == "Air Canvas":
 # RPS Controls
 rps_state = {"status": "waiting", "start_time": 0, "result_text": ""}
 if app_mode == "Rock Paper Scissors":
-    # Using session state to trigger game start might be tricky inside loop loop,
-    # but we can check if button was clicked.
-    # Actually, simpler to have a button in sidebar that toggles a "game_active" flag?
-    # Streamlit buttons reset on rerun.
-    
-    # We will use a dedicated placeholder for the button so we can re-render it if needed,
-    # but let's stick to sidebar for simplicity.
     start_game_btn = st.sidebar.button("Start Round")
 
 if run_camera:
@@ -220,21 +203,8 @@ if run_camera:
             winner = ""
 
             while cap.isOpened() and run_camera:
-                # Check for start button click (hacky for loop)
+                # Check for start button click
                 # In Streamlit, buttons return True only on the run they are clicked.
-                # Since we are in a loop, we can't detect sidebar clicks efficiently without rerun.
-                # HOWEVER: modifying specific sidebar placeholders works.
-                # A better approach: We just check 'start_game_btn' variable from outside loop.
-                # But that variable is static for the loop duration.
-                # We need a Restart mechanism or keyboard input. 
-                # OR: We check if st.session_state changed? No.
-                # Let's use a specialized "Start" gesture? Or just rely on the static button for one-off?
-                # Actually, if we hit "Start Round", the script re-runs. 
-                # So 'start_game_btn' will be True for one frame of the loop? 
-                # No, the loop enters and stays.
-                
-                # FIX: We can't really use the button INSIDE the loop effectively if we don't break.
-                # But 'start_game_btn' comes from outside. 
                 # If the user clicks, Streamlit BREAKS the loop and reruns the script.
                 # So when we re-enter, start_game_btn is True.
                 if app_mode == "Rock Paper Scissors" and 'start_game_btn' in locals() and start_game_btn and not game_active:
